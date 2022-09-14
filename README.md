@@ -1,1 +1,1 @@
-# SMART-LAB-Electronic-Engineering-Capstone-Design-
+# SMART LAB(Electronic Engineering Capstone Design Project)
