@@ -1,0 +1,53 @@
+$ sudo apt-get update	
+$ sudo apt-get upgrade
+
+$ sudo wget https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source -O /usr/bin/rpi-source && sudo chmod +x /usr/bin/rpi-source && /usr/bin/rpi-source -q --tag-update
+
+$ sudo apt-get install bc bison
+
+$ sudo apt-get install tk-dev build-essential texinfo texi2html libcwidget-dev libncurses5-dev libx11-dev binutils-dev bison flex libusb-1.0-0 libusb-dev libmpfr-dev libexpat1-dev tofrodos subversion autoconf automake libtool mercurial libssl-dev
+
+$ sudo rpi-source
+
+$ cd /home
+/home $ sudo mkdir linux-gpib
+/home $ cd linux-gpib
+/home/linux-gpib $ sudo svn checkout svn://svn.code.sf.net/p/linux-gpib/code/trunk linux-gpib-code
+
+/home/linux-gpib $ cd linux-gpib-code/linux-gpib-kernel
+/home/linux-gpib/linux-gpib-code/linux-gpib-kernel $ sudo make
+/home/linux-gpib/linux-gpib-code/linux-gpib-kernel $ sudo make install
+
+/home/linux-gpib/linux-gpib-code/linux-gpib-kernel $ cd ..
+/home/linux-gpib/linux-gpib-code $ cd linux-gpib-user
+/home/linux-gpib/linux-gpib-code/linux-gpib-user $ sudo ./bootstrap
+/home/linux-gpib/linux-gpib-code/linux-gpib-user $ sudo ./configure
+/home/linux-gpib/linux-gpib-code/linux-gpib-user $ sudo make
+/home/linux-gpib/linux-gpib-code/linux-gpib-user $ sudo make install
+
+/home/linux-gpib/linux-gpib-code/linux-gpib-user $ sudo cp util/templates/gpib.conf /etc/gpib.conf
+
+$ sudo nano /etc/gpib.conf
+
+interface {
+    minor       = 0             /* board index, minor = 0 uses /dev/gpib0, minor = 1 uses /dev/gpib1 */
+    board_type  = "ni_usb_b"    /* type of interface board being used */
+    name        = "violet"      /* optional name, allows you to get a board descriptor using ibfind() */
+    pad         = 0             /* primary address of interface             */
+    sad         = 0             /* secondary address of interface           */
+    timeout     = T30s          /* timeout for commands */
+    eos         = 0x0a          /* EOS Byte, 0xa is newline and 0xd is carriage return */
+    set-reos    = yes           /* Terminate read if EOS */
+    set-bin     = no            /* Compare EOS 8-bit */
+    set-xeos    = no            /* Assert EOI whenever EOS byte is sent */
+    set-eot     = yes           /* Assert EOI with last byte on writes */
+    master      = yes           /* interface board is system controller */
+}
+
+$ sudo modprobe ni_usb_gpib
+
+$ sudo Idconfig
+
+$ sudo gpib_config -t ni_usb_b
+
+$ sudo chmod 666 /dev/gpib0
