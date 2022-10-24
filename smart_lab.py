@@ -27,19 +27,9 @@ inst1.write("END ALWAYS")
 
 class GoogleTTS():
     def say(text):
-        #cmd="cd /home/flanon/voice_control_using_raspberry" #+ text
-        #os.system(cmd)
-        #cmd1="./text2speech.sh test" #+ text
-        #os.system(cmd1)
-
         subprocess.run("cd /home/flanon/voice_control_using_raspberry", shell=True)
-        #cmd = "\"./text2speech \"" + text + "\"\""
         cmd = "./text2speech " + text
-
-        #cmd = cmd[0:len(cmd)-1] + "\""
-
         print(cmd)
-
         subprocess.run(cmd, shell=True)
         #subprocess.run("python test.py", shell=True)
 
