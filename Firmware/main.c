@@ -1,22 +1,3 @@
-/*
- * main.c
- *
- * Created: 12/7/2022 7:11:26 PM
- *  Author: Flanon
- */
-
-/*
-#include <xc.h>
-
-int main(void)
-{
-    while(1)
-    {
-        //TODO:: Please write your application code
-    }
-}
-*/
-
 /************************************************************************
 Title:    smart_lab_V1.0
 Author:   Flanon <sus2607@gmail.com>  https://blog.naver.com/sinu8361
@@ -52,16 +33,17 @@ LICENSE:
 #include "uart.h"
 #include "lcd.h"
 
-//lcd
+//string
+#include <string.h>
 
 //input - PORTB
-#define GAS 1
-#define FIRE 0
+#define GAS PB1
+#define FIRE PB0
 
 //output - PORTC
-#define FAN 2
-#define SOL 1
-#define PUMP 0
+#define FAN PC2
+#define SOL PC1
+#define PUMP PC0
 
 #define SERVO_PIN PE5
 
@@ -98,8 +80,8 @@ void PWM(unsigned long freq, float duty)
 //딜레이 util, ms단위로 딜레이 시간 설정
 void delay(int ms)
 {
-	for (int i = 0; i < ms; i++)
-	_delay_ms (1);
+    for (int i = 0; i < ms; i++)
+        _delay_ms (1);
 }
 
 //map function, perform range mapping
@@ -108,18 +90,36 @@ float map(float x, float in_min, float in_max, float out_min, float out_max)
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+//
+
 //--------------------------------------------------------------------------------------------------------------
 
 unsigned long lastmillis_fan;
 unsigned long lastmillis_sol;
 unsigned long lastmillis_pump;
 
+unsigned long lastmillis_gas;
+unsigned long lastmillis_fire;
+
 #define interval_fan 2000
 #define interval_sol 1000
 #define interval_pump 5000
 #define interval_pause 500
 
-#define LCD_CLEAR_BUFFER "                "
+#define interval_send 1000
+
+unsigned char gas_detected[] = "Gas detected        ";
+unsigned char fire_detected[] = "Fire detected       ";
+
+unsigned char gas_removed[] = "gas removed";
+unsigned char fire_removed[] = "fire removed";
+
+unsigned char fg_detected[] = "Fire & Gas detected ";
+
+unsigned char lcd_clear[] = "                    ";
+
+unsigned int message = 0;
+unsigned int prevmessage = 0;
 
 int main(void)
 {
@@ -129,63 +129,46 @@ int main(void)
     DDRC = 0xff;
 
     PORTC = 0x00;
-	
-	SREG = 0x80;//글로벌 인터럽트 활성화
+
+    SREG = 0x80;//글로벌 인터럽트 활성화
 
     //초기화 작업
     uart1_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));//UART 초기화
     init_millis(F_CPU);//millis 함수 초기화
-	
-	unsigned char gas_detected[] = "gas detected";
-	unsigned char gas_removed[] = "gas removed";
-	unsigned char fire_detected[] = "fire detected";
-	unsigned char fire_removed[] = "fire removed";
-	
-	
-	//LCD_Init();
-	//
-	//_delay_ms(100);
-	//
-	////LCD_Clear();
-	//
-	//LCD_Pos(0,0);
-	//LCD_Char('T');
+    LCD_Init(); //LCD initialization
 
-	
-	char buffer[10];
-
-/*
-	//LCD_setcursor(0,0);
-	//LCD_wString(LCD_CLEAR_BUFFER);
-	// 문자열 출력
-	LCD_setcursor(0,0);
-	LCD_wString(fire_detected);
-	*/
-	
-	//LCD_STR(fire_removed);
-	LCD_Init(); //LCD initialization
-	LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
-	LCD_Str(fire_removed); //문자열 str을 LCD에 출력
-	
-	while (1){}
-	
+    //LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
+    //LCD_Str(fire_removed); //문자열 str을 LCD에 출력
 
     while (1) {
-		
-		
-		
-		
+
         if (!(PINB & (1 << GAS))) {
             lastmillis_fan = millis();
-			//LCD_STR(gas_detected);
+            //LCD_STR(gas_detected);
+			
+			lastmillis_gas = millis();
+
+            message = 2;
         }
 
         if (PINB & (1 << FIRE)) {
             lastmillis_sol = millis();
-			lastmillis_pump = millis ();
-			//LCD_STR(fire_detected);
+            lastmillis_pump = millis ();
+			
+			lastmillis_fire = millis();
+
+            message = 1;
         }
 
+        if ((PINB & (1 << GAS)) && !(PINB & (1 << FIRE))) {
+            message = 0;
+        }
+
+         if (!(PINB & (1 << GAS)) && (PINB & (1 << FIRE))) {
+			message = 3;
+        }
+
+        //message = (millis () / 1000) % 4;
 
         if (millis () - lastmillis_fan < interval_fan) {
             PORTC |= (1 << FAN);
@@ -212,5 +195,37 @@ int main(void)
             PWM(PWM_FREQ, map(servoPos, 0, 180, 2.5, 12.5));//value mapping and set PWM output
             prevPos = servoPos;
         }
+		
+		//lcd
+        if (message != prevmessage) {
+            switch (message) {
+            case 0:
+                LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
+                LCD_Str(lcd_clear); //문자열 str을 LCD에 출력
+                break;
+            case 1:
+                LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
+                LCD_Str(fire_detected); //문자열 str을 LCD에 출력
+                break;
+            case 2:
+                LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
+                LCD_Str(gas_detected); //문자열 str을 LCD에 출력
+                break;
+            case 3:
+                LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
+                LCD_Str(fg_detected); //문자열 str을 LCD에 출력
+                break;
+            }
+            prevmessage = message;
+        }
+		
+		//uart
+		if(millis () - lastmillis_gas < interval_send){
+			uart1_putc('G');
+		}
+		
+		if(millis () - lastmillis_fire < interval_send){
+			uart1_putc('F');
+		}
     }
 }
