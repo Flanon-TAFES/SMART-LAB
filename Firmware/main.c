@@ -1,3 +1,22 @@
+/*
+ * main.c
+ *
+ * Created: 12/7/2022 7:11:26 PM
+ *  Author: Flanon
+ */
+
+/*
+#include <xc.h>
+
+int main(void)
+{
+    while(1)
+    {
+        //TODO:: Please write your application code
+    }
+}
+*/
+
 /************************************************************************
 Title:    smart_lab_V1.0
 Author:   Flanon <sus2607@gmail.com>  https://blog.naver.com/sinu8361
@@ -31,26 +50,17 @@ LICENSE:
 #include "millis.h"
 //#include "rtc.h"
 #include "uart.h"
-//#include "lcd.h"
+#include "lcd.h"
 
 //lcd
-#define LCD_WDATA PORTD
-#define LCD_WINST PORTD
-#define LCD_RDATA PIND
-#define LCD_CTRL PORTG
-#define LCD_EN 0
-#define LCD_RW 1
-#define LCD_RS 2
 
-//input - PORTF
-#define GAS 6
-#define FIRE 7
-
-//output - PORTB
-#define FAN 2
+//input - PORTB
+#define GAS 1
+#define FIRE 0
 
 //output - PORTC
-#define SOL 2
+#define FAN 2
+#define SOL 1
 #define PUMP 0
 
 #define SERVO_PIN PE5
@@ -109,14 +119,15 @@ unsigned long lastmillis_pump;
 #define interval_pump 5000
 #define interval_pause 500
 
+#define LCD_CLEAR_BUFFER "                "
+
 int main(void)
 {
     //
-    DDRF = 0x00;
-    DDRB = 0xff;
+    //DDRF = 0x00;
+    DDRB = 0x00;
     DDRC = 0xff;
 
-    PORTB = 0x00;
     PORTC = 0x00;
 	
 	SREG = 0x80;//글로벌 인터럽트 활성화
@@ -124,31 +135,63 @@ int main(void)
     //초기화 작업
     uart1_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));//UART 초기화
     init_millis(F_CPU);//millis 함수 초기화
+	
+	unsigned char gas_detected[] = "gas detected";
+	unsigned char gas_removed[] = "gas removed";
+	unsigned char fire_detected[] = "fire detected";
+	unsigned char fire_removed[] = "fire removed";
+	
+	
+	//LCD_Init();
+	//
+	//_delay_ms(100);
+	//
+	////LCD_Clear();
+	//
+	//LCD_Pos(0,0);
+	//LCD_Char('T');
 
+	
+	char buffer[10];
+
+/*
+	//LCD_setcursor(0,0);
+	//LCD_wString(LCD_CLEAR_BUFFER);
+	// 문자열 출력
+	LCD_setcursor(0,0);
+	LCD_wString(fire_detected);
+	*/
+	
+	//LCD_STR(fire_removed);
+	LCD_Init(); //LCD initialization
+	LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
+	LCD_Str(fire_removed); //문자열 str을 LCD에 출력
+	
+	while (1){}
+	
 
     while (1) {
-
-        unsigned char gas_detected[] = "gas detected";
-        unsigned char gas_removed[] = "gas removed";
-        unsigned char fire_detected[] = "fire detected";
-        unsigned char fire_removed[] = "fire removed";
-
-
-        if (PINF & (1 << GAS)) {
+		
+		
+		
+		
+        if (!(PINB & (1 << GAS))) {
             lastmillis_fan = millis();
+			//LCD_STR(gas_detected);
         }
 
-        if (PINF & (1 << FIRE)) {
+        if (PINB & (1 << FIRE)) {
             lastmillis_sol = millis();
 			lastmillis_pump = millis ();
+			//LCD_STR(fire_detected);
         }
 
 
         if (millis () - lastmillis_fan < interval_fan) {
-            PORTB |= (1 << FAN);
+            PORTC |= (1 << FAN);
             servoPos = 90;
         } else {
-            PORTB &= ~(1 << FAN);
+            PORTC &= ~(1 << FAN);
             servoPos = 0;
         }
 
