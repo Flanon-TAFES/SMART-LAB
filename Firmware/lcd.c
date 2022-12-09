@@ -23,7 +23,7 @@
 void LCD_PORT_Init(void)
 {
     DDRF = 0xFF;//PORTB를 출력으로
-    DDRG = 0xFF;//PORTA의 하위 nibble를 출력으로
+    DDRG = 0x0F;//PORTA의 하위 nibble를 출력으로
 }
 
 //LCD 데이터 함수
@@ -34,9 +34,9 @@ void LCD_Data(unsigned char ch)
     LCD_CTRL &= ~(1 << LCD_RW);
     //data load
     LCD_CTRL |= (1 << LCD_EN);//LCD Enable
-    _delay_ms(5);//시간지연
+    _delay_us(50);//시간지연
     LCD_WDATA = ch;//데이터 출력
-    _delay_ms(5);//시간지연
+    _delay_us(50);//시간지연
     LCD_CTRL &= ~(1 << LCD_EN);//LCD Disable
 }
 
@@ -48,9 +48,9 @@ void LCD_Comm(unsigned char ch)
     LCD_CTRL &= ~(1 << LCD_RW);
     //data load
     LCD_CTRL |= (1 << LCD_EN);//LCD Enable
-    _delay_ms(5);//시간지연
+    _delay_us(50);//시간지연
     LCD_WINST = ch;//명령어 쓰기
-    _delay_ms(5);//시간지연
+    _delay_us(50);//시간지연
     LCD_CTRL &= ~(1 << LCD_EN);//LCD Disable
 }
 
@@ -58,14 +58,14 @@ void LCD_Comm(unsigned char ch)
 void LCD_Delay(unsigned char ms)
 {
     for (int i = 0; i < ms; i++)
-        _delay_ms(5);
+        _delay_ms(1);
 }
 
 //단일 문자를 출력하는 함수
 void LCD_Char(unsigned char c)
 {
     LCD_Data(c);
-    _delay_ms(5);
+    _delay_ms(1);
 }
 
 //문자열을 출력하는 함수
@@ -74,6 +74,7 @@ void LCD_Str(unsigned char *str)
     while (*str != 0) {//문자열의 마지막에 도달할 때 까지
         LCD_Char(*str);//해당 문자 출력
         str++;//다음 문자에 접근
+		//_delay_ms(10);
     }
 }
 
@@ -96,20 +97,21 @@ void LCD_Init(void) // LCD 초기화
     LCD_PORT_Init();//LCD 출력 initialization
     LCD_Comm(0x38);//Set 8bit 2Line 5x7 dots
     LCD_Delay(2);
-    LCD_Comm(0x0e);//Display & Cursor On
+    LCD_Comm(0x0c);//Display & Cursor On
     LCD_Delay(2);
     LCD_Comm(0x06);//Entry Mode(Cursor move)
     LCD_Delay(2);
     LCD_Clear();//Display Clear
 }
 
-
-//void main(void)
-//{
-    //unsigned char str[] = "LCD Test..";//사용자 지정 문자열
-    //LCD_Init(); //LCD initialization
-    //LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
-    //LCD_Str(str); //문자열 str을 LCD에 출력
-    //while (1) {
-    //}
-//}
+/*
+void main(void)
+{
+    unsigned char str[] = "LCD Test..";//사용자 지정 문자열
+    LCD_Init(); //LCD initialization
+    LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
+    LCD_Str(str); //문자열 str을 LCD에 출력
+    while (1) {
+    }
+}
+*/
