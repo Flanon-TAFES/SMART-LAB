@@ -9,26 +9,22 @@ import os
 import subprocess
 
 #
-#import sys
+import sys
 import Gpib
 
 import time
 
-# #
-# inst = Gpib.Gpib(0, 23, timeout = 20)#34401A
-# inst.clear()
 #
-# inst1 = Gpib.Gpib(0, 24, timeout = 20)#3458A
-# inst1.clear()
-#
-# inst.write("*RST")
-#
-# inst1.write("PRESET NORM")
-# inst1.write("END ALWAYS")
+inst = Gpib.Gpib(0, 23, timeout = 20)#34401A
+inst.clear()
 
+inst1 = Gpib.Gpib(0, 24, timeout = 20)#3458A
+inst1.clear()
 
-inst = 1
-inst1 = 1
+inst.write("*RST")
+
+inst1.write("PRESET NORM")
+inst1.write("END ALWAYS")
 
 class GoogleTTS():
     def say(text):
@@ -167,13 +163,13 @@ while True :
                 if i.replace(" ", "") in you_removed :
                     msg = "Ok, reseting " + i + "A"
                     if i == "HP 34401" :
-    #                     inst.write("*RST")
-                        print("test")
+                        inst.write("*RST")
+                        #print("test")
                     elif i == "HP 3458" :
-    #                     inst1.write("RESET")
-    #                     inst1.write("NDIG 9")
-    #                     inst1.write("END ALWAYS")
-                        print("test")
+                        inst1.write("RESET")
+                        inst1.write("NDIG 9")
+                        inst1.write("END ALWAYS")
+                        #print("test")
                     user_mentioned = True
                     command = ""
             if user_mentioned == False :
@@ -185,17 +181,17 @@ while True :
             for i in machine_list.keys() :
                 if i.replace(" ", "") in you_removed :
                     if i == "HP 34401":
-    #                     inst.write("CONF:RES")
-    #                     inst.write("READ?")
-    #                     data = inst.read()
-                        print("test")
-                        msg = "measured resistance is " #+ str(float(data)) + " oh>
+                        inst.write("CONF:VOLT")
+                        inst.write("READ?")
+                        data = inst.read()
+                        #print("test")
+                        msg = "measured voltage is " + str(float(data)) + " volt"
                         user_mentioned = True
                     elif i == "HP 3458":
-    #                     inst1.write("TARM SGL, 1")
-    #                     data = inst1.read()
-                        print("test")
-                        msg = "measured voltage is " #+ str(float(data)) + " volt"
+                        inst1.write("TARM SGL, 1")
+                        data = inst1.read()
+                        #print("test")
+                        msg = "measured voltage is " + str(float(data)) + " volt"
                         user_mentioned = True
                     command = ""
 
