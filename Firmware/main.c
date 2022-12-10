@@ -1,3 +1,22 @@
+/*
+ * main.c
+ *
+ * Created: 12/7/2022 7:11:26 PM
+ *  Author: Flanon
+ */
+
+/*
+#include <xc.h>
+
+int main(void)
+{
+    while(1)
+    {
+        //TODO:: Please write your application code
+    }
+}
+*/
+
 /************************************************************************
 Title:    smart_lab_V1.0
 Author:   Flanon <sus2607@gmail.com>  https://blog.naver.com/sinu8361
@@ -101,18 +120,17 @@ unsigned long lastmillis_pump;
 unsigned long lastmillis_gas;
 unsigned long lastmillis_fire;
 
-#define interval_fan 2000
+#define interval_fan 5000
 #define interval_sol 1000
 #define interval_pump 5000
 #define interval_pause 500
 
-#define interval_send 1000
+#define interval_send 3000
+
+unsigned char text[] = " --- SMART LAB --- ";
 
 unsigned char gas_detected[] = "Gas detected        ";
 unsigned char fire_detected[] = "Fire detected       ";
-
-unsigned char gas_removed[] = "gas removed";
-unsigned char fire_removed[] = "fire removed";
 
 unsigned char fg_detected[] = "Fire & Gas detected ";
 
@@ -139,6 +157,9 @@ int main(void)
 
     //LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
     //LCD_Str(fire_removed); //문자열 str을 LCD에 출력
+	
+	LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
+	LCD_Str(text); //문자열 str을 LCD에 출력
 
     while (1) {
 
@@ -148,7 +169,7 @@ int main(void)
 			
 			lastmillis_gas = millis();
 
-            message = 2;
+            //message = 2;
         }
 
         if (PINB & (1 << FIRE)) {
@@ -157,15 +178,15 @@ int main(void)
 			
 			lastmillis_fire = millis();
 
-            message = 1;
+            //message = 1;
         }
 
         if ((PINB & (1 << GAS)) && !(PINB & (1 << FIRE))) {
-            message = 0;
+            //message = 0;
         }
 
          if (!(PINB & (1 << GAS)) && (PINB & (1 << FIRE))) {
-			message = 3;
+			//message = 3;
         }
 
         //message = (millis () / 1000) % 4;
@@ -200,19 +221,19 @@ int main(void)
         if (message != prevmessage) {
             switch (message) {
             case 0:
-                LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
+                LCD_Pos(1, 0); //Cursor 위치 0행 0열 지정
                 LCD_Str(lcd_clear); //문자열 str을 LCD에 출력
                 break;
             case 1:
-                LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
+                LCD_Pos(1, 0); //Cursor 위치 0행 0열 지정
                 LCD_Str(fire_detected); //문자열 str을 LCD에 출력
                 break;
             case 2:
-                LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
+                LCD_Pos(1, 0); //Cursor 위치 0행 0열 지정
                 LCD_Str(gas_detected); //문자열 str을 LCD에 출력
                 break;
             case 3:
-                LCD_Pos(0, 0); //Cursor 위치 0행 0열 지정
+                LCD_Pos(1, 0); //Cursor 위치 0행 0열 지정
                 LCD_Str(fg_detected); //문자열 str을 LCD에 출력
                 break;
             }
@@ -222,10 +243,20 @@ int main(void)
 		//uart
 		if(millis () - lastmillis_gas < interval_send){
 			uart1_putc('G');
+			message = 2;
 		}
 		
 		if(millis () - lastmillis_fire < interval_send){
 			uart1_putc('F');
+			message = 1;
+		}
+		
+		if((millis () - lastmillis_fire < interval_send) && (millis () - lastmillis_gas < interval_send)){
+			message = 3;
+		}
+		
+		if(!(millis () - lastmillis_fire < interval_send) && !(millis () - lastmillis_gas < interval_send)){
+			message = 0;
 		}
     }
 }
