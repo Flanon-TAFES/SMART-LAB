@@ -1,22 +1,3 @@
-/*
- * main.c
- *
- * Created: 12/7/2022 7:11:26 PM
- *  Author: Flanon
- */
-
-/*
-#include <xc.h>
-
-int main(void)
-{
-    while(1)
-    {
-        //TODO:: Please write your application code
-    }
-}
-*/
-
 /************************************************************************
 Title:    smart_lab_V1.0
 Author:   Flanon <sus2607@gmail.com>  https://blog.naver.com/sinu8361
