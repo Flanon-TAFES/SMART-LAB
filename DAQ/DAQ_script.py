@@ -33,18 +33,18 @@ inst.write("OFORMAT ASCII")
 inst.write("DCV 10")
 inst.write("TARM HOLD")
 inst.write("TRIG AUTO")
-inst.write("NPLC 100")
+inst.write("NPLC 10")
 inst.write("AZERO ON")
 inst.write("LFILTER ON")
 inst.write("NRDGS 1,AUTO")
 inst.write("MEM OFF")
 inst.write("END ALWAYS")
 inst.write("NDIG 9")
-inst.write("DISP OFF,\"  \"")
+#inst.write("DISP OFF,\"  \"")
 
 inst2.write("*RST")
-inst2.write("VOLT:DC:NPLC 100")
-inst2.write("DISP OFF")
+inst2.write("VOLT:DC:NPLC 10")
+#inst2.write("DISP OFF")
 
 cnt = 0
 tread = 2
@@ -56,7 +56,7 @@ ppm = 0
 inst.write("TEMP?")
 temp = float(inst.read())
 
-while cnt <= 10000000:
+while cnt <= 100:
     cnt+=1
     #with open('10v_3458_nplc100_mm_08451_opt002.csv', 'a') as o:
     tread = tread - 1
@@ -90,7 +90,7 @@ while cnt <= 10000000:
     ppm2 = ((float(data2) / reflevel2)-1)*1E6
     #inst.write("DISP OFF \"%3.3f ppm\"" % float(ppm))
 
-    time.sleep(1)
+    #time.sleep(1)
     print (time.strftime("%Y/%m/%d-%H:%M:%S;") + ("[%8d]: %2.8f v, dev %4.4f ppm, T:%3.1f, T:%3.2f, P:%5.2f, H:%3.2f" % (cnt, float(data),float(ppm),float(temp),float(outtemp),float(pressure),float(humidity))))
     #o.write (("%16.8f;%16.8f;%3.1f;%4.3f;\r\n" % (float(data),float(reflevel),float(temp),float(ppm))))
     #o.close()
@@ -133,3 +133,4 @@ while cnt <= 10000000:
     ifclient.write_points(body)
 
     ifclient.write_points(body2)
+
