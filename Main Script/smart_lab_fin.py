@@ -188,6 +188,7 @@ while True :
                         msg = "measured voltage is " + str(float(data)) + " volt"
                         user_mentioned = True
                     elif i == "HP 3458":
+                        inst1.write("NDIG 9")
                         inst1.write("TARM SGL, 1")
                         data = inst1.read()
                         #print("test")
@@ -206,7 +207,7 @@ while True :
             pi_mouth.say("ok running data acquisition program")
             msg="data acquisition program is finished"
             subprocess.run("cd Desktop/", shell=True)
-            cmd = "python3 bg_script.py"
+            cmd = "python3 34401A_3458A_bme280_influxdb.py"
             #print(cmd)
             subprocess.run(cmd, shell=True)
             user_mentioned = True
@@ -216,7 +217,7 @@ while True :
             pi_mouth.say("ok running laboratory monitoring program")
             msg="laboratory monitoring program is finished"
             subprocess.run("cd Desktop/", shell=True)
-            cmd = "python3 script.py"
+            cmd = "python3 bg_script.py"
             #print(cmd)
             subprocess.run(cmd, shell=True)
             user_mentioned = True
